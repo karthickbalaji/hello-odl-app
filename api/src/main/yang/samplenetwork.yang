@@ -1,0 +1,71 @@
+module samplenetwork {
+    yang-version 1.1;
+    namespace "urn:opendaylight:params:xml:ns:yang:samplenetwork";
+    prefix "samplenetwork";
+
+    revision "2020-08-18" {
+        description "Initial revision of samplenetwork model";
+    }
+	
+    rpc create-network {
+        input {
+        	container net {
+				list devices {
+					// each node will have the attributes defined in the grouping
+					uses node-attr;
+				}
+			}
+		}
+        output {
+            leaf status {
+                type string;
+            }
+        }
+    }
+	
+	rpc update-location {
+        input {
+			container device {
+				uses node-attr;
+			}
+		}
+        output {
+            leaf status {
+                type string;
+            }
+        }
+    }
+	notification locationChanged {
+        description
+                "Indicates that the node location is changed.";
+        leaf name {
+            type string;
+            description
+                        "Unique name of the node";
+        }
+        leaf change {
+            type string;
+            description "changed location";
+        }
+    }
+	
+	grouping node-attr {
+        leaf name {
+            type string;
+        }
+        leaf location {
+            type string;
+        }
+    }
+	
+		
+	container network {
+        list nodes {
+            // identify each node by using the name as key
+            key "name";
+
+            // each node will have the attributes defined in the grouping
+            uses node-attr;
+        }
+    }	
+}

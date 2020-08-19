@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
+<!-- Copyright © 2020 "Karthick Balaji T S" and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html -->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+	xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
+	odl:use-default-for-reference-types="true">
+
+	<reference id="dataBroker"
+		interface="org.opendaylight.mdsal.binding.api.DataBroker"
+		odl:type="default" />
+
+	<!-- ODL RPC registration -->
+	<odl:rpc-implementation
+		interface="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.samplenetwork.rev200818.SamplenetworkService"
+		ref="newtworkRpcService" />
+
+	<!-- ODL RPC service -->
+	<bean id="newtworkRpcService"
+		class="org.opendaylight.demo.impl.SampleNetworkServiceImpl">
+		<property name="dataBroker" ref="dataBroker" />
+	</bean>
+
+	<!-- Application Provider Bean class - init method called on activation, 
+		registers for ODL data tree changes -->
+	<bean id="provider"
+		class="org.opendaylight.demo.impl.SampleNetworkProvider"
+		init-method="init" destroy-method="close">
+		<argument ref="dataBroker" />
+		<property name="networkDataChangeListener"
+			ref="networkDataChangeListener" />
+	</bean>
+
+	<!-- ODL DataTreeChangeListener listening on network/nodes -->
+	<bean id="networkDataChangeListener"
+		class="org.opendaylight.demo.impl.NetworkDataChangeListener">
+	</bean>
+
+	<!-- ODL Notification publisher -->
+	<reference id="notificationService"
+		interface="org.opendaylight.mdsal.binding.api.NotificationPublishService"
+		availability="optional">
+		<reference-listener
+			bind-method="setNotificationService" ref="networkDataChangeListener" />
+	</reference>
+
+	<!-- ODL Notification subscriber -->
+	<bean id="networkNotifSubscriber"
+		class="org.opendaylight.demo.impl.NetworkNotificationSubscriber">
+	</bean>
+	<odl:notification-listener
+		ref="networkNotifSubscriber" />
+
+
+</blueprint>
