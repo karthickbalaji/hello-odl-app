@@ -60,6 +60,7 @@ After successful build, you would have artifacts generated under karaf/ folder
 cd to karaf/target/assembly/bin and run ./karaf to start karaf console
 
 >cd /karaf/target/assembly/bin
+
 >./karaf
 
 On Karaf console - check for logs using below command to check for your application correctly started
